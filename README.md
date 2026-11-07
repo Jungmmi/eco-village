@@ -19,7 +19,8 @@ eco-village/
 │   ├── game.js         ← 🎮 맵 이동, 퀴즈, 진화, 최종 보상, 랭킹 로직
 │   ├── effects.js      ← ✨ 파티클, 색종이, 폭죽 (Canvas)
 │   ├── audio.js        ← 🔊 효과음 (Web Audio로 합성, 음원 파일 불필요)
-│   └── db.js           ← 🏆 Firestore 저장/불러오기 (설정 전에는 데모 모드)
+│   ├── db.js           ← 🏆 Firestore 저장/불러오기 (설정 전에는 데모 모드)
+│   └── nickname.js     ← 🚫 학번이름 형식 검사 + 욕설·비속어·패드립 차단 단어 목록
 ├── assets/
 │   ├── images/         ← 나중에 교체할 캐릭터·맵·인증서 그림
 │   └── sounds/         ← (선택) 직접 녹음한 효과음
