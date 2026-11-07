@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>에코 빌리지: 쪼꼬미의 그린시티 프로젝트</title>
+  <meta name="description" content="신재생 에너지와 친환경 자동차를 배우는 기술·가정 학습 게임">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- 몽글몽글 배경 빛망울 -->
+  <div class="bokeh" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+
+  <!-- ===================== 🗺️ 맵(동네) ===================== -->
+  <div id="viewport">
+    <div id="world">
+
+      <!-- 🖼️ 동네 바닥: config.js 의 IMAGES.zone1~3 로 배경 이미지 교체 -->
+      <div class="zone zone-1" data-zone="1">
+        <div class="zone-sign"><span class="zone-chip easy">STAGE 1 · Easy</span><b>뚜벅이 골목길</b><small>기초 신재생 에너지</small></div>
+      </div>
+      <div class="zone zone-2 locked" data-zone="2">
+        <div class="zone-sign"><span class="zone-chip normal">STAGE 2 · Normal</span><b>에코 에너지 밸리</b><small>발전 원리</small></div>
+        <div class="river"></div>
+        <div class="zone-lock"><span>🔒</span>1단계를 클리어하면 열려요</div>
+      </div>
+      <div class="zone zone-3 locked" data-zone="3">
+        <div class="zone-sign"><span class="zone-chip hard">STAGE 3 · Hard</span><b>퓨처 모빌리티 시티</b><small>친환경 자동차</small></div>
+        <div class="zone-lock"><span>🔒</span>2단계를 클리어하면 열려요</div>
+      </div>
+
+      <!-- 길 -->
+      <div class="road road-main"><div class="road-line"></div></div>
+      <div class="road road-alley"></div>
+      <div class="plaza"></div>
+      <div class="lane-cars" aria-hidden="true"><span class="mini-car c1">🚙</span><span class="mini-car c2">🚌</span><span class="mini-car c3">🛵</span></div>
+
+      <!-- 장식(나무, 풍력발전기, 태양광 패널 등)은 game.js 가 자동 배치 -->
+      <div id="decor"></div>
+
+      <!-- 🏠 단계 입구 건물: IMAGES.gate1~3 로 그림 교체 -->
+      <div class="building gate" id="gate-1" data-stage="1">
+        <div class="gate-ring"></div>
+        <div class="building-body"><img class="gate-img" alt="" hidden><div class="gate-icon">🏘️</div></div>
+        <div class="building-label">1단계 · 뚜벅이 골목길</div>
+        <div class="gate-status">⭐ Easy</div>
+        <div class="interact-prompt">SPACE / 클릭!</div>
+      </div>
+      <div class="building gate locked" id="gate-2" data-stage="2">
+        <div class="gate-ring"></div>
+        <div class="building-body"><img class="gate-img" alt="" hidden><div class="gate-icon">🌬️</div></div>
+        <div class="building-label">2단계 · 에코 에너지 밸리</div>
+        <div class="gate-status">⭐⭐ Normal</div>
+        <div class="interact-prompt">SPACE / 클릭!</div>
+      </div>
+      <div class="building gate locked" id="gate-3" data-stage="3">
+        <div class="gate-ring"></div>
+        <div class="building-body"><img class="gate-img" alt="" hidden><div class="gate-icon">🚗</div></div>
+        <div class="building-label">3단계 · 퓨처 모빌리티 시티</div>
+        <div class="gate-status">⭐⭐⭐ Hard</div>
+        <div class="interact-prompt">SPACE / 클릭!</div>
+      </div>
+
+      <!-- 🏆 명예의 전당 (맵 중앙): IMAGES.hall 로 그림 교체 -->
+      <div class="building hall-of-fame" id="hall">
+        <div class="hall-glow"></div>
+        <div class="building-body hall-body">
+          <img class="hall-img" alt="" hidden>
+          <div class="hall-roof"></div>
+          <div class="hall-trophy">🏆</div>
+          <div class="hall-columns"><i></i><i></i><i></i><i></i></div>
+        </div>
+        <div class="building-label gold">명예의 전당</div>
+        <div class="interact-prompt">랭킹 보기!</div>
+      </div>
+
+      <!-- 🐣 플레이어 캐릭터: IMAGES.char0~3 로 그림 교체 -->
+      <div id="player" class="player">
+        <div class="player-shadow"></div>
+        <div class="player-sprite" id="player-sprite"></div>
+        <div class="speech-bubble" id="player-bubble"></div>
+      </div>
+
+      <div id="click-marker"></div>
+    </div>
+  </div>
+
+  <!-- ===================== HUD ===================== -->
+  <header class="hud hud-left glass">
+    <div class="hud-portrait" id="hud-portrait"></div>
+    <div class="hud-info">
+      <div class="hud-name" id="hud-name">꼬질꼬질 먼지 뭉치</div>
+      <div class="hud-stages">
+        <span class="stage-dot" data-s="1">1</span><span class="stage-dot" data-s="2">2</span><span class="stage-dot" data-s="3">3</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="hud hud-right">
+    <div class="glass hud-timer"><span>⏱️</span><b id="timer">00:00.0</b></div>
+    <button class="glass hud-btn" id="btn-rank" title="명예의 전당">🏆</button>
+    <button class="glass hud-btn" id="btn-sound" title="소리 켜기/끄기">🔊</button>
+  </div>
+
+  <div class="hud hud-bottom glass" id="hud-tip">⌨️ 방향키·WASD 또는 🖱️ 클릭으로 이동 · 건물 앞에서 <b>SPACE</b></div>
+
+  <div class="minimap glass" id="minimap" aria-hidden="true">
+    <i class="mm-zone mm-z1"></i><i class="mm-zone mm-z2"></i><i class="mm-zone mm-z3"></i>
+    <i class="mm-hall"></i><i class="mm-gate" data-g="1"></i><i class="mm-gate" data-g="2"></i><i class="mm-gate" data-g="3"></i>
+    <i class="mm-player" id="mm-player"></i>
+  </div>
+
+  <div id="toast"></div>
+
+  <!-- ===================== 시작 화면 ===================== -->
+  <section class="overlay show" id="start-screen">
+    <div class="start-card glass">
+      <div class="title-badge">기술·가정 · 신재생 에너지와 친환경 자동차</div>
+      <h1 class="game-title"><span>에코 빌리지</span><small>쪼꼬미의 그린시티 프로젝트</small></h1>
+      <div class="start-hero">
+        <div class="start-char" id="start-char"></div>
+        <div class="start-bubble">
+          지구가 점점 뜨거워지고 있어… 🥵<br>
+          우리 동네를 탄소 배출 없는 <b>'신재생 에너지 자립 마을'</b>로 바꿔 줄
+          <b>미래 에너지 컨설턴트</b>를 찾고 있어! 나랑 같이 가 줄래?
+        </div>
+      </div>
+      <ul class="how-to">
+        <li><span>🗺️</span>세 동네의 퀴즈를 풀면</li>
+        <li><span>✨</span>쪼꼬미가 진화해요</li>
+        <li><span>🏆</span>가장 빠른 컨설턴트는 명예의 전당에!</li>
+      </ul>
+      <div class="start-actions">
+        <button class="btn btn-primary btn-xl" id="btn-start">🌱 모험 시작하기</button>
+        <button class="btn btn-ghost" id="btn-start-rank">🏆 명예의 전당</button>
+      </div>
+      <p class="start-mode" id="start-mode"></p>
+    </div>
+  </section>
+
+  <!-- ===================== 퀴즈 ===================== -->
+  <section class="overlay" id="quiz-modal" aria-modal="true" role="dialog">
+    <div class="quiz-card glass" id="quiz-card">
+      <div class="quiz-top">
+        <span class="stage-chip" id="quiz-chip">STAGE 1</span>
+        <div class="quiz-progress" id="quiz-progress"></div>
+        <span class="quiz-count" id="quiz-count">1 / 8</span>
+        <button class="icon-btn" id="quiz-close" title="잠깐 나가기">✕</button>
+      </div>
+      <div class="quiz-visual" id="quiz-visual">☀️</div>
+      <h2 class="quiz-q" id="quiz-q">문제</h2>
+      <div class="quiz-options" id="quiz-options"></div>
+      <div class="hint-area" id="hint-area">
+        <div class="hint-avatar" id="hint-avatar"></div>
+        <div class="hint-bubble"><b>쪼꼬미의 힌트 💡</b><p id="hint-text"></p></div>
+      </div>
+
+      <!-- 정답 해설 팝업 -->
+      <div class="explain-pop" id="explain-pop">
+        <div class="explain-card">
+          <div class="explain-title" id="explain-title">정답이에요!</div>
+          <span class="explain-chip">💡 한 줄 해설</span>
+          <p class="explain-text" id="explain-text"></p>
+          <button class="btn btn-primary" id="btn-next">다음 문제로 ➜</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 진화 연출 ===================== -->
+  <section class="overlay evo-overlay" id="evo-overlay">
+    <div class="evo-rays"></div>
+    <div class="evo-rings"><i></i><i></i><i></i></div>
+    <div class="evo-flash"></div>
+    <p class="evo-pre" id="evo-pre">어라…? 쪼꼬미의 상태가…!?</p>
+    <div class="evo-stage">
+      <div class="evo-char evo-old" id="evo-old"></div>
+      <div class="evo-char evo-new" id="evo-new"></div>
+    </div>
+    <div class="evo-result" id="evo-result">
+      <div class="evo-title" id="evo-title">진화 성공!</div>
+      <div class="evo-name" id="evo-name"></div>
+      <p class="evo-desc" id="evo-desc"></p>
+      <button class="btn btn-primary" id="btn-evo-ok">좋아, 계속 가자! ➜</button>
+    </div>
+  </section>
+
+  <!-- ===================== 최종 클리어 ===================== -->
+  <section class="overlay final-overlay" id="final-overlay">
+    <div class="final-wrap">
+      <h2 class="all-clear">ALL CLEAR!</h2>
+
+      <div class="final-form glass" id="final-form">
+        <p>그린시티 프로젝트 완성! 🎉 너는 진정한 <b>그린 마이스터</b>야!</p>
+        <div class="final-time">
+          <div><small>소요 시간</small><b id="final-raw">00:00.0</b></div>
+          <div><small>오답 페널티</small><b id="final-penalty">+0초</b></div>
+          <div class="total"><small>최종 기록</small><b id="final-total">00:00.0</b></div>
+        </div>
+        <label for="nick-input">학번 + 이름을 입력해 명예의 전당에 올라가자!</label>
+        <div class="nick-row">
+          <input id="nick-input" maxlength="10" placeholder="예: 31201홍길동" autocomplete="off">
+          <button class="btn btn-primary" id="btn-save">기록 저장 ✨</button>
+        </div>
+        <p class="form-msg" id="form-msg"></p>
+      </div>
+
+      <div class="reward" id="reward">
+        <!-- 🖼️ 인증서: IMAGES.certificate 로 배경 교체 -->
+        <div class="certificate" id="certificate">
+          <div class="cert-inner">
+            <div class="cert-seal">🌱</div>
+            <div class="cert-kicker">GREEN MEISTER CERTIFICATE</div>
+            <h3>그린 마이스터 인증서</h3>
+            <p class="cert-name" id="cert-name">31201 홍길동</p>
+            <p class="cert-body">위 학생은 에코 빌리지의 세 동네를 모두 돌며 신재생 에너지와 친환경 자동차에 대한 지식을 증명하고, 우리 동네를 <b>신재생 에너지 자립 마을</b>로 바꾸는 데 앞장섰기에 이 인증서를 드립니다.</p>
+            <div class="cert-meta"><span>기록 <b id="cert-time">00:00.0</b></span><span id="cert-date">2026. 11. 7.</span></div>
+            <div class="cert-sign" id="cert-sign">배곧해솔중학교 기술·가정 선생님</div>
+          </div>
+        </div>
+        <!-- 🎟️ 쿠폰: IMAGES.coupon 로 배경 교체 -->
+        <div class="coupon" id="coupon">
+          <div class="coupon-left">
+            <div class="coupon-kicker">SURPRISE GIFT</div>
+            <div class="coupon-title" id="coupon-title">선생님의 깜짝 선물 쿠폰</div>
+            <div class="coupon-item" id="coupon-item">🍬 달콤한 간식 1개</div>
+            <div class="coupon-how" id="coupon-how">이 화면을 선생님께 보여 주세요!</div>
+          </div>
+          <div class="coupon-right">
+            <div class="coupon-code" id="coupon-code">GREEN-0000</div>
+            <div class="coupon-exp" id="coupon-exp"></div>
+          </div>
+        </div>
+        <div class="reward-actions">
+          <button class="btn btn-ghost" id="btn-download">📸 인증서 이미지 저장</button>
+          <button class="btn btn-primary" id="btn-final-rank">🏆 명예의 전당 보기</button>
+          <button class="btn btn-ghost" id="btn-restart">🔄 처음부터 다시</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 명예의 전당 ===================== -->
+  <section class="overlay" id="rank-modal" aria-modal="true" role="dialog">
+    <div class="rank-card glass">
+      <div class="rank-head">
+        <h2>🏆 명예의 전당</h2>
+        <button class="icon-btn" id="rank-close">✕</button>
+      </div>
+      <div class="rank-tabs">
+        <button class="tab active" data-tab="school">🏫 전교 랭킹</button>
+        <button class="tab" data-tab="class">🧑‍🤝‍🧑 반별 랭킹</button>
+        <select id="class-select" hidden></select>
+      </div>
+      <p class="rank-mode" id="rank-mode"></p>
+      <ol class="rank-list" id="rank-list"></ol>
+    </div>
+  </section>
+
+</div>
+
+<!-- 이펙트 캔버스(맨 위) -->
+<canvas id="fx-canvas" aria-hidden="true"></canvas>
+
+<script type="module" src="js/game.js"></script>
+</body>
+</html>
