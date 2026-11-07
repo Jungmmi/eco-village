@@ -334,15 +334,12 @@ function answer(btn, correct) {
     sfx.correct();
     btn.classList.add("correct");
     $$(".opt").forEach((b) => (b.disabled = true));
-    fx.burst(cx, cy, { count: 70 });
-    setTimeout(() => fx.burst(window.innerWidth / 2, window.innerHeight * 0.35, { count: 50, speed: 9 }), 250);
     setTimeout(() => {
       const qs = state.quiz[cur.n], total = STAGES[cur.n - 1].questions.length;
       $("#explain-title").textContent = CHEERS[(Math.random() * CHEERS.length) | 0];
       $("#explain-text").textContent = cur.q.explain;
       $("#btn-next").textContent = qs.idx + 1 >= total ? "🎉 단계 클리어! ➜" : "다음 문제로 ➜";
       $("#explain-pop").classList.add("show");
-      fx.confetti(60);
     }, 550);
   } else {
     sfx.wrong();
