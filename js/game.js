@@ -422,7 +422,7 @@ async function stageClear(n) {
   else setTimeout(() => { fx.rocket(cx - 200); fx.rocket(cx + 200); }, 200);
 
   state.cleared = n;
-  $("#evo-title").textContent = grand ? "🎊 최종 진화 성공! 🎊" : "진화 성공!";
+  $("#evo-title").textContent = grand ? "🎉 최종 진화 성공! 🎉" : "진화 성공!";
   $("#evo-name").textContent = CHARACTERS[n].name;
   $("#evo-desc").textContent = CHARACTERS[n].desc + (grand ? "" : ` 이제 ${STAGES[n].name}에 갈 수 있어요!`);
   $("#btn-evo-ok").textContent = grand ? "🏅 보상 받으러 가기 ➜" : "좋아, 계속 가자! ➜";
