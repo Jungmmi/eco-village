@@ -95,6 +95,7 @@
   <header class="hud hud-left glass">
     <div class="hud-portrait" id="hud-portrait"></div>
     <div class="hud-info">
+      <div class="hud-player" id="hud-player"></div>
       <div class="hud-name" id="hud-name">꼬질꼬질 먼지 뭉치</div>
       <div class="hud-stages">
         <span class="stage-dot" data-s="1">1</span><span class="stage-dot" data-s="2">2</span><span class="stage-dot" data-s="3">3</span>
@@ -148,6 +149,11 @@
         <li><span>✨</span>쪼꼬미가 진화해요</li>
         <li><span>🏆</span>가장 빠른 컨설턴트는 명예의 전당에!</li>
       </ul>
+      <div class="start-nick">
+        <label for="start-nick">내 학번 + 이름</label>
+        <input id="start-nick" maxlength="12" placeholder="예: 31201홍길동" autocomplete="off" spellcheck="false">
+        <p class="form-msg" id="start-msg"></p>
+      </div>
       <div class="start-actions">
         <button class="btn btn-primary btn-xl" id="btn-start">🌱 모험 시작하기</button>
         <button class="btn btn-ghost" id="btn-start-rank">🏆 명예의 전당</button>
@@ -215,11 +221,8 @@
           <div><small>오답 페널티</small><b id="final-penalty">+0초</b></div>
           <div class="total"><small>최종 기록</small><b id="final-total">00:00.0</b></div>
         </div>
-        <label for="nick-input">학번 + 이름을 입력해 명예의 전당에 올라가자!</label>
-        <div class="nick-row">
-          <input id="nick-input" maxlength="10" placeholder="예: 31201홍길동" autocomplete="off">
-          <button class="btn btn-primary" id="btn-save">기록 저장 ✨</button>
-        </div>
+        <p class="save-status" id="save-status">🏆 명예의 전당에 기록을 저장하는 중… ⏳</p>
+        <button class="btn btn-primary" id="btn-save" hidden>다시 저장하기 🔄</button>
         <p class="form-msg" id="form-msg"></p>
       </div>
 

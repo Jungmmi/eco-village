@@ -8,6 +8,7 @@ import { sfx, setMuted, isMuted, unlockAudio } from './audio.js';
 import { fx } from './effects.js';
 import { saveRecord, fetchRecords, isOnline } from './db.js';
 import { GAME, IMAGES } from './config.js';
+import { checkNickname } from './nickname.js';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -120,6 +121,7 @@ function renderCharacter() {
   $("#player-sprite").innerHTML = charMarkup(s);
   $("#hud-portrait").innerHTML = charMarkup(s);
   $("#hud-name").textContent = CHARACTERS[s].name;
+  $("#hud-player").textContent = state.info ? `${state.info.nickname.slice(0, 5)} ${state.info.name}` : "";
   $$(".stage-dot").forEach((d) => d.classList.toggle("done", +d.dataset.s <= s));
 }
 
@@ -453,31 +455,23 @@ function finale() {
   state.final = { raw, total: raw + pen };
   $("#timer").textContent = fmt(raw);
   $("#final-raw").textContent = fmt(raw);
-  $("#final-penalty").textContent = `+${state.wrongTotal * GAME.WRONG_PENALTY_SEC}초 (오답 ${state.wrongTotal}개)`;
+  $("#final-penalty").textContent = `+${state.wrongTotal * GAME.WRONG_PENALTY_SEC}초`;
+  $("#final-penalty").previousElementSibling.textContent = `오답 ${state.wrongTotal}개 페널티`;
   $("#final-total").textContent = fmt(state.final.total);
   $("#reward").classList.remove("show");
-  $("#final-form").style.display = "";
   openModal("final-overlay");
   sfx.fanfare();
   fx.fireworks(7000, 200);
   fx.confetti(220);
-  setTimeout(() => $("#nick-input").focus(), 600);
-}
-
-function parseNick(raw) {
-  const nick = raw.replace(/\s/g, "");
-  const m = nick.match(GAME.NICKNAME_RULE);
-  if (!m) return null;
-  return { nickname: nick, grade: +m[1], classNo: +m[2], studentNo: +m[3], name: m[4], classKey: `${+m[1]}-${+m[2]}` };
+  setTimeout(saveFinal, 1200); // 시작할 때 받은 학번이름으로 자동 저장
 }
 
 async function saveFinal() {
-  if (state.saved) return;
-  const info = parseNick($("#nick-input").value);
-  const msg = $("#form-msg");
-  if (!info) { msg.textContent = "학번 5자리 + 이름으로 입력해 주세요! (예: 31201홍길동)"; sfx.wrong(); $("#nick-input").classList.add("shake"); setTimeout(() => $("#nick-input").classList.remove("shake"), 500); return; }
-  const btn = $("#btn-save");
-  btn.disabled = true; btn.textContent = "저장 중… ⏳"; msg.textContent = "";
+  if (state.saved || !state.info) return;
+  const info = state.info;
+  const msg = $("#form-msg"), btn = $("#btn-save"), st = $("#save-status");
+  btn.hidden = true; msg.textContent = "";
+  st.textContent = `🏆 ${info.nickname} 기록을 명예의 전당에 저장하는 중… ⏳`;
   try {
     const mode = await saveRecord({ ...info, timeMs: Math.round(state.final.total), rawTimeMs: Math.round(state.final.raw), wrongCount: state.wrongTotal });
     state.saved = true; state.myNick = info.nickname;
@@ -485,13 +479,14 @@ async function saveFinal() {
     showReward(info, mode);
   } catch (err) {
     console.error(err);
-    msg.textContent = "앗, 저장에 실패했어요. 인터넷 연결을 확인하고 다시 눌러 주세요!";
-    btn.disabled = false; btn.textContent = "기록 저장 ✨";
+    st.textContent = "";
+    msg.textContent = "앗, 저장에 실패했어요. 인터넷 연결을 확인하고 아래 버튼을 눌러 주세요!";
+    btn.hidden = false;
   }
 }
 
 function showReward(info, mode) {
-  $("#final-form").style.display = "none";
+  $("#save-status").textContent = `✅ ${info.nickname} 기록 저장 완료!`;
   $("#cert-name").textContent = `${info.grade}${String(info.classNo).padStart(2, "0")}${String(info.studentNo).padStart(2, "0")} ${info.name}`;
   $("#cert-time").textContent = fmt(state.final.total);
   const d = new Date();
@@ -585,7 +580,7 @@ async function openRank() {
     renderBoard(rankCache);
     const sel = $("#class-select");
     const classes = [...new Set(rankCache.map((r) => r.classKey))].sort((a, b) => { const [g1, c1] = a.split("-").map(Number), [g2, c2] = b.split("-").map(Number); return g1 - g2 || c1 - c2; });
-    const mine = state.myNick ? parseNick(state.myNick)?.classKey : null;
+    const mine = state.info ? state.info.classKey : null;
     sel.innerHTML = classes.map((c) => { const [g, k] = c.split("-"); return `<option value="${c}" ${c === mine ? "selected" : ""}>${g}학년 ${k}반</option>`; }).join("");
     renderRank();
   } catch (e) {
@@ -627,7 +622,21 @@ function closeRank() {
    시작 / 재시작
    ========================================================= */
 function startGame() {
-  unlockAudio(); sfx.unlock();
+  unlockAudio();
+  const res = checkNickname($("#start-nick").value);
+  const msg = $("#start-msg"), inp = $("#start-nick");
+  if (!res.ok) {
+    msg.textContent = res.msg;
+    msg.classList.toggle("bad", !!res.bad);
+    sfx.wrong();
+    inp.classList.remove("shake"); void inp.offsetWidth; inp.classList.add("shake");
+    if (res.bad) { inp.value = ""; $(".start-card").classList.remove("shake"); void inp.offsetWidth; $(".start-card").classList.add("shake"); }
+    inp.focus();
+    return;
+  }
+  state.info = res.info; state.myNick = res.info.nickname;
+  renderCharacter();
+  sfx.unlock();
   $("#start-screen").classList.remove("show");
   state.modal = null; state.started = true;
   state.elapsed = 0; resumeTimer();
@@ -649,7 +658,8 @@ function bind() {
   $("#btn-next").addEventListener("click", nextQuestion);
   $("#btn-evo-ok").addEventListener("click", afterEvolution);
   $("#btn-save").addEventListener("click", saveFinal);
-  $("#nick-input").addEventListener("keydown", (e) => { if (e.key === "Enter") saveFinal(); e.stopPropagation(); });
+  $("#start-nick").addEventListener("keydown", (e) => { if (e.key === "Enter") startGame(); e.stopPropagation(); });
+  $("#start-nick").addEventListener("input", () => { $("#start-msg").textContent = ""; });
   $("#btn-download").addEventListener("click", downloadCert);
   $("#btn-final-rank").addEventListener("click", openRank);
   $("#btn-restart").addEventListener("click", restart);
