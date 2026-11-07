@@ -102,20 +102,23 @@
     </div>
   </header>
 
-  <div class="hud hud-right">
-    <div class="glass hud-timer"><span>⏱️</span><b id="timer">00:00.0</b></div>
-    <button class="glass hud-btn" id="btn-rank" title="명예의 전당">🏆</button>
-    <button class="glass hud-btn" id="btn-sound" title="소리 켜기/끄기">🔊</button>
-  </div>
+  <!-- 오른쪽 위: 타이머·버튼 줄 + 바로 아래 TOP 10 랭킹 (한 묶음) -->
+  <div class="hud hud-right-col">
+    <div class="hud-right">
+      <div class="glass hud-timer"><span>⏱️</span><b id="timer">00:00.0</b></div>
+      <button class="glass hud-btn" id="btn-rank" title="명예의 전당">🏆</button>
+      <button class="glass hud-btn" id="btn-sound" title="소리 켜기/끄기">🔊</button>
+    </div>
 
-  <!-- 🏆 화면에 항상 떠 있는 TOP 10 랭킹 -->
-  <aside class="hud hud-rank glass" id="hud-rank">
-    <button class="rank-toggle" id="rank-toggle" title="접기/펼치기">
-      <span>🏆 명예의 전당 TOP 10</span><b id="rank-toggle-icon">－</b>
-    </button>
-    <ol class="board-list" id="board-list"></ol>
-    <div class="board-foot" id="board-more">전체·반별 랭킹 보기 ›</div>
-  </aside>
+    <!-- 🏆 화면에 항상 떠 있는 TOP 10 랭킹 -->
+    <aside class="hud-rank glass" id="hud-rank">
+      <button class="rank-toggle" id="rank-toggle" title="접기/펼치기">
+        <span>🏆 명예의 전당 TOP 10</span><b id="rank-toggle-icon">－</b>
+      </button>
+      <ol class="board-list" id="board-list"></ol>
+      <div class="board-foot" id="board-more">전체·반별 랭킹 보기 ›</div>
+    </aside>
+  </div>
 
   <div class="hud hud-bottom glass" id="hud-tip">⌨️ 방향키·WASD 또는 🖱️ 클릭으로 이동 · 건물 앞에서 <b>SPACE</b></div>
 

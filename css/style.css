@@ -408,7 +408,8 @@ button { font-family: inherit; color: inherit; cursor: pointer; }
 .stage-dot { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 800; background: rgba(255,255,255,.7); color: #b3a8cc; border: 2px solid #fff; transition: .4s; }
 .stage-dot.done { color: #fff; background: linear-gradient(135deg, var(--neon-pink), #a77bff); box-shadow: 0 0 12px var(--neon-pink); }
 
-.hud-right { right: 16px; top: 16px; display: flex; gap: 10px; }
+.hud-right-col { right: 16px; top: 16px; display: flex; flex-direction: column; align-items: stretch; gap: 10px; width: max-content; }
+.hud-right { display: flex; gap: 10px; justify-content: flex-end; }
 .hud-timer { display: flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 22px; font-family: var(--font-display); font-size: 22px; }
 .hud-timer b { font-weight: 400; min-width: 92px; font-variant-numeric: tabular-nums; }
 .hud-btn { width: 52px; height: 52px; border-radius: 18px; font-size: 24px; transition: transform .25s cubic-bezier(.34,1.56,.64,1); }
@@ -686,11 +687,12 @@ button { font-family: inherit; color: inherit; cursor: pointer; }
   .hud-name { font-size: 14px; }
   .stage-dot { width: 20px; height: 20px; font-size: 11px; }
   .hud-left { top: 10px; left: 10px; }
-  .hud-right { top: 10px; right: 10px; gap: 6px; }
+  .hud-right-col { top: 10px; right: 10px; gap: 6px; }
+  .hud-right { gap: 6px; }
   .hud-timer { font-size: 16px; padding: 8px 12px; }
   .hud-timer b { min-width: 70px; }
   .hud-btn { width: 42px; height: 42px; font-size: 19px; border-radius: 14px; }
-  .hud-right { flex-wrap: wrap; justify-content: flex-end; max-width: 170px; }
+
   .hud-bottom { font-size: 12px; white-space: normal; text-align: center; width: calc(100% - 24px); bottom: 10px; }
   .minimap { display: none; }
   .quiz-card { padding: 18px 16px; border-radius: 26px; }
@@ -735,10 +737,10 @@ button { font-family: inherit; color: inherit; cursor: pointer; }
 /* =========================================================
    🏆 화면에 항상 떠 있는 TOP 10 랭킹 (HUD)
    ========================================================= */
-.hud-rank { right: 16px; top: 82px; width: 250px; padding: 10px 10px 8px; border-radius: 22px; background: rgba(255,255,255,.62); }
+.hud-rank { width: auto; padding: 10px 10px 8px; border-radius: 22px; background: rgba(255,255,255,.62); }
 .rank-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 2px 6px 6px; border: 0; background: none; font-family: var(--font-display); font-size: 17px; color: #8a5a00; }
 .rank-toggle b { font-weight: 400; color: var(--ink-soft); }
-.hud-rank.folded { width: auto; padding-bottom: 6px; }
+.hud-rank.folded { padding-bottom: 6px; }
 .hud-rank.folded .board-list, .hud-rank.folded .board-foot { display: none; }
 .hud-rank.folded .rank-toggle { padding-bottom: 2px; }
 .board-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
@@ -751,4 +753,5 @@ button { font-family: inherit; color: inherit; cursor: pointer; }
 .board-list .b-time { font-family: var(--font-display); font-weight: 400; font-variant-numeric: tabular-nums; }
 .board-foot { margin-top: 6px; text-align: center; font-size: 12px; font-weight: 800; color: var(--ink-soft); cursor: pointer; }
 .board-foot:hover { color: var(--pink-deep); }
-@media (max-width: 640px) { .hud-rank { top: 110px; right: 10px; width: 220px; } }
+@media (max-width: 640px) { .hud-right-col { max-width: 230px; } }
+@media (max-width: 640px) { .hud-name { display: none; } }
