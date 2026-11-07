@@ -122,6 +122,8 @@ function renderCharacter() {
   $("#hud-portrait").innerHTML = charMarkup(s);
   $("#hud-name").textContent = CHARACTERS[s].name;
   $("#hud-player").textContent = state.info ? `${state.info.nickname.slice(0, 5)} ${state.info.name}` : "";
+  const tag = $("#name-tag");
+  if (state.info) { tag.textContent = `${state.info.nickname.slice(0, 5)} ${state.info.name}`; tag.hidden = false; }
   $$(".stage-dot").forEach((d) => d.classList.toggle("done", +d.dataset.s <= s));
 }
 
