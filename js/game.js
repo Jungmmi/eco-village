@@ -20,6 +20,7 @@ const LAYOUT = {
   start: { x: 350, y: 1080 },
   gates: { 1: { x: 350, y: 575 }, 2: { x: 1480, y: 420 }, 3: { x: 1480, y: 1080 } },
   hall: { x: 1000, y: 735 },
+  board: { x: 575, y: 590 },   // 맵 위 TOP 10 전광판
   zones: { 2: { x: 700, y: 0, w: 1300, h: 600 }, 3: { x: 700, y: 700, w: 1300, h: 600 } }
 };
 const SPEED = 300; // px/s
@@ -67,6 +68,8 @@ function placeBuildings() {
     const mm = $(`.mm-gate[data-g="${n}"]`);
     mm.style.left = (p.x / WORLD.w) * 100 + "%"; mm.style.top = ((p.y - 40) / WORLD.h) * 100 + "%";
   });
+  const bd = $("#map-board");
+  bd.style.left = LAYOUT.board.x + "px"; bd.style.top = LAYOUT.board.y + "px"; bd.style.zIndex = LAYOUT.board.y + 100;
   const h = $("#hall");
   h.style.left = LAYOUT.hall.x + "px"; h.style.top = LAYOUT.hall.y + "px"; h.style.zIndex = LAYOUT.hall.y + 100;
 }
@@ -81,6 +84,7 @@ function buildDecor() {
     avoid.every((a) => Math.hypot(a.x - x, a.y - y) > 170) &&
     !(y > 575 && y < 735) &&                    // 큰길
     !(x > 270 && x < 430 && y > 700) &&         // 골목길
+    !(x > 400 && x < 720 && y > 200 && y < 640) && // TOP 10 전광판
     Math.hypot(x - 1000, y - 650) > 230 &&      // 광장
     !(y < 160 && x < 380) && !(x > 1230 && x < 1660 && ((y < 170) || (y > 700 && y < 870))); // 표지판 자리
 
@@ -210,7 +214,8 @@ function updateCamera() {
 function interactables() {
   return [
     ...[1, 2, 3].map((n) => ({ id: "gate-" + n, x: LAYOUT.gates[n].x, y: LAYOUT.gates[n].y + 40, act: () => enterGate(n) })),
-    { id: "hall", x: LAYOUT.hall.x, y: LAYOUT.hall.y + 40, act: () => openRank() }
+    { id: "hall", x: LAYOUT.hall.x, y: LAYOUT.hall.y + 40, act: () => openRank() },
+    { id: "map-board", x: LAYOUT.board.x, y: LAYOUT.board.y + 40, act: () => openRank() }
   ];
 }
 function updateNear() {
@@ -481,6 +486,7 @@ async function saveFinal() {
   try {
     const mode = await saveRecord({ ...info, timeMs: Math.round(state.final.total), rawTimeMs: Math.round(state.final.raw), wrongCount: state.wrongTotal });
     state.saved = true; state.myNick = info.nickname;
+    refreshBoard();
     showReward(info, mode);
   } catch (err) {
     console.error(err);
@@ -546,6 +552,31 @@ async function downloadCert() {
 let rankCache = null, rankTab = "school";
 const mask = (name) => !GAME.MASK_NAME || name.length < 2 ? name : name.length === 2 ? name[0] + "*" : name[0] + "*".repeat(name.length - 2) + name[name.length - 1];
 
+/* 기록 불러오기: 한 사람당 최고 기록 1개, 빠른 순 */
+async function getRanking() {
+  const recs = await fetchRecords();
+  const best = new Map();
+  recs.forEach((r) => { if (!best.has(r.nickname) || best.get(r.nickname).timeMs > r.timeMs) best.set(r.nickname, r); });
+  return [...best.values()].sort((a, b) => a.timeMs - b.timeMs);
+}
+
+/* 맵 위 TOP 10 전광판 */
+function renderBoard(list) {
+  const medal = ["🥇", "🥈", "🥉"];
+  let html = "";
+  for (let i = 0; i < 10; i++) {
+    const r = list[i];
+    html += r
+      ? `<li class="${r.nickname === state.myNick ? "me" : ""}"><span class="b-no">${medal[i] || i + 1}</span><span class="b-name">${String(r.nickname).replace(r.name, mask(r.name)).replace(/[<>&]/g, "")}</span><span class="b-time">${fmt(r.timeMs)}</span></li>`
+      : `<li class="empty"><span class="b-no">${medal[i] || i + 1}</span><span class="b-name">도전자를 기다려요</span><span class="b-time">--:--.-</span></li>`;
+  }
+  $("#board-list").innerHTML = html;
+}
+async function refreshBoard() {
+  try { renderBoard(await getRanking()); }
+  catch (e) { console.error(e); $("#board-list").innerHTML = `<li class="empty"><span class="b-name">랭킹을 불러오지 못했어요</span></li>`; }
+}
+
 async function openRank() {
   sfx.open();
   const wasFinal = state.modal === "final-overlay";
@@ -555,10 +586,8 @@ async function openRank() {
   $("#rank-mode").textContent = isOnline() ? "🌐 실시간 랭킹 · 최종 기록(오답 페널티 포함) 빠른 순 · 1인 최고 기록" : "🧪 데모 모드 · 이 기기에 저장된 기록만 보여요 (Firebase 설정 전)";
   $("#rank-list").innerHTML = `<li class="rank-empty"><div class="spinner"></div>불러오는 중…</li>`;
   try {
-    const recs = await fetchRecords();
-    const best = new Map();
-    recs.forEach((r) => { if (!best.has(r.nickname) || best.get(r.nickname).timeMs > r.timeMs) best.set(r.nickname, r); });
-    rankCache = [...best.values()].sort((a, b) => a.timeMs - b.timeMs);
+    rankCache = await getRanking();
+    renderBoard(rankCache);
     const sel = $("#class-select");
     const classes = [...new Set(rankCache.map((r) => r.classKey))].sort((a, b) => { const [g1, c1] = a.split("-").map(Number), [g2, c2] = b.split("-").map(Number); return g1 - g2 || c1 - c2; });
     const mine = state.myNick ? parseNick(state.myNick)?.classKey : null;
@@ -681,6 +710,9 @@ function init() {
   $("#start-mode").textContent = isOnline() ? "🌐 실시간 명예의 전당 연결됨" : "🧪 데모 모드 (Firebase 설정 전: 기록은 이 기기에만 저장돼요)";
   state.modal = "start-screen";
   bind();
+  renderBoard([]);
+  refreshBoard();
+  setInterval(() => { if (!document.hidden) refreshBoard(); }, 60000); // 1분마다 새로고침
   requestAnimationFrame((t) => { last = t; loop(t); });
 }
 init();
