@@ -711,3 +711,13 @@ button { font-family: inherit; color: inherit; cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+/* =========================================================
+   🧘 계속 움직이는 배경 반짝이 끄기 (눈 피로 줄이기)
+   정답, 진화, 최종 클리어 때의 이펙트는 그대로 나옵니다.
+   다시 켜고 싶으면 이 블록을 지우세요.
+   ========================================================= */
+.char-svg .twinkle { display: none; }          /* 캐릭터 주변 반짝이 별 */
+.char-svg .specks { animation: none; }          /* 먼지 뭉치 주변 먼지 가루 */
+.bokeh i { animation: none; }                    /* 배경 빛망울 흘러다님 */
+.hall-glow { animation: none; opacity: .6; }     /* 명예의 전당 회전 후광 */
