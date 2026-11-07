@@ -721,3 +721,13 @@ button { font-family: inherit; color: inherit; cursor: pointer; }
 .char-svg .specks { animation: none; }          /* 먼지 뭉치 주변 먼지 가루 */
 .bokeh i { animation: none; }                    /* 배경 빛망울 흘러다님 */
 .hall-glow { animation: none; opacity: .6; }     /* 명예의 전당 회전 후광 */
+
+/* 명예의 전당: 빈 순위 칸 */
+.rank-list li { animation: none; }
+.rank-list li.rank-slot { background: rgba(255,255,255,.45) !important; border-style: dashed; border-color: rgba(160,140,200,.35); }
+.rank-slot .rank-nick, .rank-slot .rank-time { color: #b3a8cc; font-weight: 700; }
+.rank-list { gap: 6px; }
+.rank-list li { padding: 6px 14px; border-radius: 16px; }
+.rank-list li .rank-no { font-size: 20px; }
+.rank-list li .rank-time { font-size: 18px; }
+.rank-tabs { margin: 10px 0 6px; }

@@ -576,14 +576,21 @@ function renderRank() {
   sel.hidden = rankTab !== "class" || !sel.options.length;
   let list = rankCache;
   if (rankTab === "class") list = list.filter((r) => r.classKey === sel.value);
-  list = list.slice(0, 50);
+  /* 항상 1위~10위 칸을 보여 주고, 빈 자리는 '도전자 대기 중'으로 표시 */
+  const TOP = 10;
+  list = list.slice(0, TOP);
   const medal = ["🥇", "🥈", "🥉"];
-  $("#rank-list").innerHTML = list.length
-    ? list.map((r, i) => `<li class="${r.nickname === state.myNick ? "me" : ""}" style="animation-delay:${i * 0.04}s">
-        <span class="rank-no">${medal[i] || i + 1}</span>
+  let html = "";
+  for (let i = 0; i < TOP; i++) {
+    const r = list[i];
+    const no = `<span class="rank-no">${medal[i] || i + 1}</span>`;
+    html += r
+      ? `<li class="${r.nickname === state.myNick ? "me" : ""}">${no}
         <span class="rank-nick">${String(r.nickname).replace(r.name, mask(r.name)).replace(/[<>&]/g, "")}<small>${r.grade}학년 ${r.classNo}반 · 오답 ${r.wrongCount ?? 0}개</small></span>
-        <span class="rank-time">${fmt(r.timeMs)}</span></li>`).join("")
-    : `<li class="rank-empty">아직 기록이 없어요.<br>첫 번째 그린 마이스터가 되어 보세요! 🌱</li>`;
+        <span class="rank-time">${fmt(r.timeMs)}</span></li>`
+      : `<li class="rank-slot">${no}<span class="rank-nick">도전자를 기다려요</span><span class="rank-time">--:--.-</span></li>`;
+  }
+  $("#rank-list").innerHTML = html;
 }
 
 function closeRank() {
