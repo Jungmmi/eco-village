@@ -8,12 +8,12 @@
    apiKey 가 'YOUR_' 로 시작하면 '데모 모드'로 동작합니다.
    (데모 모드: 랭킹이 이 기기 브라우저에만 저장됨) */
 export const FIREBASE_CONFIG = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCDMrPJ7QpYbK06gdTgDkRaXpq35j1m-YM",
+  authDomain: "eco-village-73cc7.firebaseapp.com",
+  projectId: "eco-village-73cc7",
+  storageBucket: "eco-village-73cc7.firebasestorage.app",
+  messagingSenderId: "740494577928",
+  appId: "1:740494577928:web:01e6be063f82c5395cdcbd"
 };
 
 /* Firestore 컬렉션 이름 (학기마다 바꾸면 랭킹이 새로 시작돼요. 예: 'ecoVillage_2027_1') */
