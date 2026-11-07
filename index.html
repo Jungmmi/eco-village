@@ -80,16 +80,6 @@
         <div class="interact-prompt">랭킹 보기!</div>
       </div>
 
-      <!-- 📋 맵 위 TOP 10 전광판 (클릭하면 전체 명예의 전당) -->
-      <div class="building map-board" id="map-board">
-        <div class="board-panel">
-          <div class="board-head">🏆 명예의 전당 TOP 10</div>
-          <ol class="board-list" id="board-list"></ol>
-          <div class="board-foot">클릭하면 반별 랭킹도 볼 수 있어요</div>
-        </div>
-        <div class="board-legs"><i></i><i></i></div>
-      </div>
-
       <!-- 🐣 플레이어 캐릭터: IMAGES.char0~3 로 그림 교체 -->
       <div id="player" class="player">
         <div class="player-shadow"></div>
@@ -117,6 +107,15 @@
     <button class="glass hud-btn" id="btn-rank" title="명예의 전당">🏆</button>
     <button class="glass hud-btn" id="btn-sound" title="소리 켜기/끄기">🔊</button>
   </div>
+
+  <!-- 🏆 화면에 항상 떠 있는 TOP 10 랭킹 -->
+  <aside class="hud hud-rank glass" id="hud-rank">
+    <button class="rank-toggle" id="rank-toggle" title="접기/펼치기">
+      <span>🏆 명예의 전당 TOP 10</span><b id="rank-toggle-icon">－</b>
+    </button>
+    <ol class="board-list" id="board-list"></ol>
+    <div class="board-foot" id="board-more">전체·반별 랭킹 보기 ›</div>
+  </aside>
 
   <div class="hud hud-bottom glass" id="hud-tip">⌨️ 방향키·WASD 또는 🖱️ 클릭으로 이동 · 건물 앞에서 <b>SPACE</b></div>
 

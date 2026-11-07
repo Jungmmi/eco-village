@@ -20,7 +20,6 @@ const LAYOUT = {
   start: { x: 350, y: 1080 },
   gates: { 1: { x: 350, y: 575 }, 2: { x: 1480, y: 420 }, 3: { x: 1480, y: 1080 } },
   hall: { x: 1000, y: 735 },
-  board: { x: 575, y: 590 },   // 맵 위 TOP 10 전광판
   zones: { 2: { x: 700, y: 0, w: 1300, h: 600 }, 3: { x: 700, y: 700, w: 1300, h: 600 } }
 };
 const SPEED = 300; // px/s
@@ -68,8 +67,6 @@ function placeBuildings() {
     const mm = $(`.mm-gate[data-g="${n}"]`);
     mm.style.left = (p.x / WORLD.w) * 100 + "%"; mm.style.top = ((p.y - 40) / WORLD.h) * 100 + "%";
   });
-  const bd = $("#map-board");
-  bd.style.left = LAYOUT.board.x + "px"; bd.style.top = LAYOUT.board.y + "px"; bd.style.zIndex = LAYOUT.board.y + 100;
   const h = $("#hall");
   h.style.left = LAYOUT.hall.x + "px"; h.style.top = LAYOUT.hall.y + "px"; h.style.zIndex = LAYOUT.hall.y + 100;
 }
@@ -84,7 +81,6 @@ function buildDecor() {
     avoid.every((a) => Math.hypot(a.x - x, a.y - y) > 170) &&
     !(y > 575 && y < 735) &&                    // 큰길
     !(x > 270 && x < 430 && y > 700) &&         // 골목길
-    !(x > 400 && x < 720 && y > 200 && y < 640) && // TOP 10 전광판
     Math.hypot(x - 1000, y - 650) > 230 &&      // 광장
     !(y < 160 && x < 380) && !(x > 1230 && x < 1660 && ((y < 170) || (y > 700 && y < 870))); // 표지판 자리
 
@@ -214,8 +210,7 @@ function updateCamera() {
 function interactables() {
   return [
     ...[1, 2, 3].map((n) => ({ id: "gate-" + n, x: LAYOUT.gates[n].x, y: LAYOUT.gates[n].y + 40, act: () => enterGate(n) })),
-    { id: "hall", x: LAYOUT.hall.x, y: LAYOUT.hall.y + 40, act: () => openRank() },
-    { id: "map-board", x: LAYOUT.board.x, y: LAYOUT.board.y + 40, act: () => openRank() }
+    { id: "hall", x: LAYOUT.hall.x, y: LAYOUT.hall.y + 40, act: () => openRank() }
   ];
 }
 function updateNear() {
@@ -560,7 +555,7 @@ async function getRanking() {
   return [...best.values()].sort((a, b) => a.timeMs - b.timeMs);
 }
 
-/* 맵 위 TOP 10 전광판 */
+/* 화면에 항상 보이는 TOP 10 랭킹 */
 function renderBoard(list) {
   const medal = ["🥇", "🥈", "🥉"];
   let html = "";
@@ -636,7 +631,6 @@ function startGame() {
   $("#start-screen").classList.remove("show");
   state.modal = null; state.started = true;
   state.elapsed = 0; resumeTimer();
-  fx.burst(innerWidth / 2, innerHeight / 2, { count: 80 });
   setTimeout(() => say("우리 동네를 깨끗하게 바꾸러 가자! 위쪽 1단계 건물로 고고! 🌱", 4000), 500);
 }
 
@@ -669,6 +663,12 @@ function bind() {
     renderRank();
   }));
   $("#class-select").addEventListener("change", renderRank);
+  /* TOP 10 패널 접기/펼치기 (좁은 화면에서는 처음에 접힘) */
+  const hr = $("#hud-rank");
+  const setFold = (f) => { hr.classList.toggle("folded", f); $("#rank-toggle-icon").textContent = f ? "＋" : "－"; };
+  setFold(window.innerWidth < 640);
+  $("#rank-toggle").addEventListener("click", () => { sfx.click(); setFold(!hr.classList.contains("folded")); });
+  $("#board-more").addEventListener("click", () => { if (!state.modal) openRank(); });
 
   const MOVE = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
   window.addEventListener("keydown", (e) => {
